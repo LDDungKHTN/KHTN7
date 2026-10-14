@@ -43,12 +43,14 @@ MC(30,1,'Trao đổi chất','Nước và muối khoáng được vận chuyển
 TF(30,2,'Trao đổi chất','Thoát hơi nước ở lá chủ yếu diễn ra qua khí khổng.',true),
 MC(30,2,'Trao đổi chất','Mạch rây vận chuyển chất nào?','Chất hữu cơ do lá tạo ra','Nước từ rễ lên','Khí oxygen','Chỉ muối khoáng'),
 TF(30,3,'Trao đổi chất','Thoát hơi nước giúp hạ nhiệt độ cho lá cây.',true)];
-BANK0.push.apply(BANK0,NEW);
-BANK0.forEach(function(q){if(!q.b)for(var i=0;i<pairs.length;i++)if(q.q.indexOf(pairs[i][0])>=0){q.b=+pairs[i][1];break}});
-rebuild();
+var B0=typeof BANK0!='undefined'?BANK0:BANK;
+B0.push.apply(B0,NEW);
+B0.forEach(function(q){if(!q.b)for(var i=0;i<pairs.length;i++)if(q.q.indexOf(pairs[i][0])>=0){q.b=+pairs[i][1];break}});
+if(typeof rebuild=='function')rebuild();
 var scope={b:0};
 GAMES.squid={ico:'🌉',name:'Vượt cầu sinh tồn',pick:['mc','tf'],n:10,time:30,d:'Chơi đơn. Chọn đúng để bước tiếp, chọn sai là sụp hố! Qua 8–10 bước để về đích nhận cúp.'};
 function lp(b){return BANK.filter(function(q){return q.b==b}).map(function(q){return q.l>3?Object.assign({},q,{l:3}):q})}
+function sel2(id,pairs,v){return'<select id="'+id+'" style="max-width:100%">'+pairs.map(function(x){return'<option value="'+x[0]+'"'+(x[0]==v?' selected':'')+'>'+esc(x[1])+'</option>'}).join('')+'</select>'}
 function snd(f){if(window.KH7SND&&KH7SND[f])KH7SND[f](arguments[1])}
 function bopts(){var cnt={};BANK.forEach(function(q){if(q.b)cnt[q.b]=(cnt[q.b]||0)+1});return[['0','Tất cả câu hỏi (ngẫu nhiên)']].concat(BAI.map(function(n,i){var c=cnt[i+1]||0;return[String(i+1),'Bài '+(i+1)+' – '+n+' ('+c+' câu'+(c<5?', đang bổ sung':'')+')']}))}
 /* --- Menu: thêm lựa chọn phạm vi câu hỏi theo bài --- */
@@ -56,7 +58,7 @@ var _menu=menu;
 menu=function(){
  _menu();
  var h=[].slice.call(app.querySelectorAll('h2')).filter(function(x){return x.textContent.indexOf('người chơi')>0})[0];
- if(h)h.insertAdjacentHTML('beforebegin','<h2>Luyện tập theo bài</h2><p>Mỗi câu có 30 giây. Chọn bài để chỉ luyện câu hỏi của bài đó.</p>'+selH('p_b',bopts(),scope.b).replace('<select','<select style="max-width:100%"'));
+ if(h)h.insertAdjacentHTML('beforebegin','<h2>Luyện tập theo bài</h2><p>Mỗi câu có 30 giây. Chọn bài để chỉ luyện câu hỏi của bài đó.</p>'+sel2('p_b',bopts(),scope.b));
 };
 var _oc=app.onchange;
 app.onchange=function(e){if(e.target.id=='p_b'){scope.b=+e.target.value;return}return _oc&&_oc.call(app,e)};
@@ -65,13 +67,14 @@ var _start=start;
 start=function(){
  if(game=='squid'){if(mode!='solo'||sel.length!=1)return alert('Trò này chơi một người: hãy chọn chế độ Chơi đơn.');return sqStart()}
  if(!scope.b)return _start();
- var all=BANK,pool=lp(scope.b),g=GAMES[game];
+ var all=BANK.slice(),pool=lp(scope.b),g=GAMES[game];
  var typed=pool.filter(function(q){return g.pick.indexOf(q.t)>=0});
  var pick=typed.length>=5?g.pick:['mc','tf','num'];
  var n=Math.min(10,pool.filter(function(q){return pick.indexOf(q.t)>=0}).length);
  if(!n)return alert('Bài này chưa có câu hỏi.');
- GAMES[game]=Object.assign({},g,{pick:pick,n:n,time:30});BANK=pool;
- try{_start()}finally{GAMES[game]=g;BANK=all}
+ GAMES[game]=Object.assign({},g,{pick:pick,n:n,time:30});
+ var sp=Array.prototype.splice;sp.apply(BANK,[0,BANK.length].concat(pool));
+ try{_start()}finally{GAMES[game]=g;sp.apply(BANK,[0,BANK.length].concat(all))}
 };
 /* --- Vượt cầu sinh tồn --- */
 var Q=null,qt=null;
@@ -127,7 +130,7 @@ function ac2(){}
 /* --- Quản lý câu hỏi: chọn bài --- */
 if(typeof mform=='function'){
  var _mf=mform,_mr=mread,_ma=mAct;
- mform=function(d){_mf(d);var c=document.getElementById('f_c');if(c)c.parentNode.insertAdjacentHTML('beforeend',selH('f_b',[['0','Không thuộc bài nào']].concat(BAI.map(function(n,i){return[String(i+1),'Bài '+(i+1)+' – '+n]})),M.b0||0).replace('<select','<select style="max-width:100%"'))};
+ mform=function(d){_mf(d);var c=document.getElementById('f_c');if(c)c.parentNode.insertAdjacentHTML('beforeend',sel2('f_b',[['0','Không thuộc bài nào']].concat(BAI.map(function(n,i){return[String(i+1),'Bài '+(i+1)+' – '+n]})),M.b0||0))};
  mread=function(){var r=_mr(),e=document.getElementById('f_b');if(e){M.b0=+e.value||0}if(M.b0)r.b=M.b0;return r};
  mAct=function(a,v){if(a=='m_edit'){var q=BANK[+v];M.b0=q&&q.b||0}else if(a=='m_new')M.b0=0;return _ma(a,v)};
 }
