@@ -31,8 +31,8 @@ function noise(t,d,v,fq,q,type){
 /* Hồi hộp: tim đập + tiếng tích tắc, nhanh dần và cao dần khi sắp hết giờ */
 function beat(left){
  if(!ac())return;
- var t=AC.currentTime;if(S.nb&&t<S.nb)return;
- S.nb=t+0.3+0.7*left/5;
+ var t=AC.currentTime;if(t<nb)return;
+ nb=t+0.3+0.7*left/5;
  var p=1+(5-left)*0.12;
  tone(150*p,t,0.16,'sine',0.9,70*p);
  tone(150*p,t+0.17,0.14,'sine',0.6,70*p);
@@ -68,6 +68,11 @@ answer=function(v){
  try{sfx(sum()>b)}catch(e){}
  return r;
 };
+var nb=0;
+function step(){var t=AC.currentTime;tone(660,t,0.1,'triangle',0.25);tone(990,t+0.08,0.16,'triangle',0.25)}
+function win(){var t=AC.currentTime;[523,659,784,1047,1319,1568].forEach(function(f,i){tone(f,t+i*0.1,0.4,'triangle',0.2)});clap()}
+function g(f){return function(a){if(on&&ac())f(a)}}
+window.KH7SND={beat:g(beat),step:g(step),win:g(win),crash:g(crash),clap:g(clap)};
 var btn=document.createElement('button');
 btn.setAttribute('aria-label','Bật hoặc tắt âm thanh');
 btn.style.cssText='margin-left:auto;font-size:22px;background:none;border:2px solid var(--line);border-radius:50%;width:44px;height:44px;cursor:pointer;color:inherit';
@@ -77,4 +82,5 @@ show();
 var h=document.querySelector('header');if(h)h.appendChild(btn);
 document.addEventListener('click',ac,true);
 document.addEventListener('touchend',ac,true);
+var bs=document.createElement('script');bs.src='bai.js';document.body.appendChild(bs);
 })();
