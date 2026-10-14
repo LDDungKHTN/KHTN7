@@ -101,6 +101,7 @@ function sqAsk(){
  clearInterval(qt);qt=setInterval(sqTick,100);
 }
 function sqTick(){
+ if(!Q||Q.lock||!document.querySelector('.glass')){clearInterval(qt);return}
  var left=Math.max(0,30-(Date.now()-Q.t0)/1000),b=$('#tb');
  if(b)b.style.width=left/30*100+'%';
  if(left>0&&left<=5)snd('beat',left);
@@ -109,14 +110,15 @@ function sqTick(){
 function sqPick(i){
  if(!Q||Q.lock)return;Q.lock=true;clearInterval(qt);
  var o=Q.o[i],btns=document.querySelectorAll('.glass');
+ if(!btns.length){clearInterval(qt);return}
  if(o&&o.ok){
   btns[i].classList.add('ok');snd('step');
   $('.track').outerHTML=track(Q.i+1,false,true);
   setTimeout(function(){Q.i++;if(Q.i>=Q.qs.length)sqWin();else sqAsk()},900);
  }else{
   if(btns[i])btns[i].classList.add('bad');
-  var right='';Q.o.forEach(function(x,j){if(x.ok){btns[j].classList.add('ok');right=x.t}});
-  $('.track').outerHTML=track(Q.i+1,true);snd('crash');
+  var right='';Q.o.forEach(function(x,j){if(x.ok){if(btns[j])btns[j].classList.add('ok');right=x.t}});
+  var tr=$('.track');if(tr)tr.outerHTML=track(Q.i+1,true);snd('crash');
   $('#fb').textContent=(i<0?'⏰ Hết giờ! ':'')+'💥 Sụp hố! Đáp án đúng: '+right;
   setTimeout(sqLose,2300);
  }
@@ -139,4 +141,7 @@ var st=document.createElement('style');
 st.textContent='.track{display:flex;gap:4px;margin:14px 0}.tile{flex:1;min-width:0;height:46px;border-radius:10px;border:2px solid var(--line);display:grid;place-items:center;background:var(--card);font-size:22px}.tile.done{background:var(--ok);opacity:.55}.tile.cur{border-color:var(--gold)}.tile.hole{background:#000;border-color:var(--bad)}.av{display:inline-block}.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.glass{font:inherit;font-weight:700;color:var(--ink);padding:18px 12px;border-radius:14px;border:3px solid var(--cyan);background:linear-gradient(135deg,rgba(120,220,255,.35),rgba(255,255,255,.12));cursor:pointer}.glass.ok{background:var(--ok);border-color:var(--ok);color:#fff}.glass.bad{background:var(--bad);border-color:var(--bad);color:#fff}.win{text-align:center}.cup{font-size:clamp(90px,28vw,150px);line-height:1}.wintxt{font-size:clamp(64px,22vw,120px);font-weight:800;color:var(--gold);line-height:1;text-shadow:0 0 24px var(--gold)}.spark{font-size:30px;margin:8px 0}@media(prefers-reduced-motion:no-preference){.av.hop{animation:hop .6s}.av.fall{animation:fall 1.4s ease-in forwards}.cup{animation:cup 1.1s ease-out}.wintxt{animation:glow 1.2s ease-in-out infinite alternate}.spark{animation:cup 1.6s}@keyframes hop{40%{transform:translateY(-18px) scale(1.2)}}@keyframes fall{to{transform:translateY(150px) rotate(540deg) scale(.2);opacity:0}}@keyframes cup{from{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.2)}}@keyframes glow{to{text-shadow:0 0 52px var(--gold);transform:scale(1.06)}}}@media(prefers-reduced-motion:reduce){.hole .av{opacity:.3}}';
 document.head.appendChild(st);
 window.KH7DBG={Q:function(){return Q},BAI:BAI};
+/* Nạp các đợt câu hỏi bổ sung: cauhoi2.js, cauhoi3.js, ... (dừng khi không còn file) */
+window.KH7Q={MC:MC,TF:TF,NUM:NUM,add:function(a){B0.push.apply(B0,a);if(typeof rebuild=='function')rebuild()}};
+var kq=2;(function nx(){var s=document.createElement('script');s.src='cauhoi'+kq+'.js';s.onload=function(){kq++;nx()};s.onerror=function(){};document.body.appendChild(s)})();
 })();
