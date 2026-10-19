@@ -142,6 +142,9 @@ st.textContent='.track{display:flex;gap:4px;margin:14px 0}.tile{flex:1;min-width
 document.head.appendChild(st);
 window.KH7DBG={Q:function(){return Q},BAI:BAI};
 /* Nạp các đợt câu hỏi bổ sung: cauhoi2.js, cauhoi3.js, ... (dừng khi không còn file) */
-window.KH7Q={MC:MC,TF:TF,NUM:NUM,add:function(a){B0.push.apply(B0,a);if(typeof rebuild=='function')rebuild()}};
-var kq=2;(function nx(){var s=document.createElement('script');s.src='cauhoi'+kq+'.js';s.onload=function(){kq++;nx()};s.onerror=function(){};document.body.appendChild(s)})();
+window.KH7Q={MC:MC,TF:TF,NUM:NUM,add:function(a){B0.push.apply(B0,a);if(typeof rebuild=='function')rebuild()},replaceAll:function(a){B0.splice(0,B0.length);B0.push.apply(B0,a);if(typeof rebuild=='function')rebuild()}};
+var kq=2;
+function nx(){var s=document.createElement('script');s.src='cauhoi'+kq+'.js';s.onload=function(){kq++;nx()};s.onerror=function(){};document.body.appendChild(s)}
+/* Nếu có cauhoi-tong.js (xuất từ trang quản lý) thì nó thay thế toàn bộ ngân hàng gốc; các file cauhoi4.js trở đi vẫn được thêm lên trên. */
+var ts=document.createElement('script');ts.src='cauhoi-tong.js';ts.onload=function(){kq=4;nx()};ts.onerror=function(){nx()};document.body.appendChild(ts);
 })();
